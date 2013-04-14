@@ -1,0 +1,1 @@
+#define G2X_VERSION 382
