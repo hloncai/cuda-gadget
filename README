@@ -1,0 +1,359 @@
+NAME:
+
+	G2X: GADGET2 optimization using the CUDA architecture
+
+VERSION:
+
+	0.383, 11 May 2010
+
+ABOUT:
+
+	G2X is a optimized version of GADGET2. It uses the GP-GPU multiprocessors,
+	found on nVIDIA graphics cards. The optimized code was developed using
+	CUDA 2.2 or CUDA 3.0, porting the existing algorithm written in C to the CUDA
+	architecture.
+
+	Speedups of the optimized function, force_treeevaluate_shortrange(),is about
+	a factor 30, with the overall performance gain being around an order of a
+	magnitude (10 to 12), running on data sets with N=10^6 particles and above.
+	The code benchmark was done on nVIDIA 260 GPU.
+
+SUPPORTED GADGET2 MODES:
+
+	G2X only support a limited number of GADGET2 modes. This means that you will
+	have to check gadget.options in you GADGET2 directory. The G2X support list
+	is currently
+
+		PERIODIC:                not-defined/defined support
+		PMGRID:                  must be defined
+		DOUBLEPRECISION:         must be un-defined
+		UNEQUALSOFTENINGS:       not-defined/defined support
+		ADAPTIVE_GRAVSOFT_FORGAS:not-defined/defined support, but still untested
+		PLACEHIGHRESREGION:      not-defined/defined support, but still untested
+
+	Other GADGET2 defines should be irrelevant for G2X. You can choose whatever
+	configuration you like.
+
+NEW FEATURES:
+
+	From version 0.155 to 0.382:
+	* Many!
+
+	From version 0.116 to 0.155:
+	* Added multinode capabilities, you can now run on a cluster of CPU/GPU's.
+	* Tested on 64 bit systems.
+	* Tested on Tesla C1060 systems (Thanks to Igor).
+	* Updated Makefiles, adjusted to GNU/GCC and Intel/ICC systems.
+	* Improved on the Makefile include directories for GSL and FFTW.
+	* Internal double precision mode support, but it still lack a double
+	  precision interface to GADGET2
+	* Added support for multiple GPUs per node.
+
+PREREQUISITES:
+
+	For a installation you first need to have a working GADGET2 binaries,
+	including the 'GADGET2 stack' MPI/FFTW/GSL and friends.
+
+	You can get the GADGET2 code at
+
+		http://www.mpa-garching.mpg.de/gadget/
+
+	Secondly, you need a working version of the nVidia SDK and toolkit. You will
+	need the CUDA Driver for X, the CUDA Toolkit, and the CUDA SDK code samples.
+	You need to be able to compile and run the projects in the code samples.
+
+	You can the cuda software CUDA get it at
+
+		http://www.nvidia.com/object/cuda_get.html
+
+	List of prerequisites
+
+		* GADGET2 libraries (MPI,GSL,FFTW)
+		* CUDA 2.2 SDK or above
+		* C compiler, GNU/GCC or Intel/ICC
+		* Initial condition generator, IC, from Sirko, Gadget Addon utils, or
+		* Initial condition (IC) files, Dat/*.ic.
+
+	Note: there is a problem with CUDA 2.3, making the compiler stall in hydrakernel.h
+	file at the line "g_const_state.result_hydro[target]=result;" (appox. line 1105).
+	There is no know workaround yet for this defect.
+
+INSTALL:
+
+	First read the PREREQUISITES; GADGET2 and nVidia CUDA.
+
+	This package contains two main parts: 1) original GADGET2 sourcecode,
+	modified to call the 2) backend G2X CUDA/GPU support code.
+
+	First untar the package and, possible the add-on ic files,
+
+		> tar xzf g2x-0.382.tgz
+		> tar xzf g2x-ic-0.382.tgz
+
+	Then try to make
+
+		> make
+
+	If you run into missing MPI/FFTW/GSL/CUDA include files, you should review
+
+		Src/Gadget-2.0.3/Gadget2/Makefile
+
+	to make it suit you system.
+
+	You can also build the GADGET2 or G2X backend independently, like
+
+		> cd Src/Gadget-2.0.3/Gadget2
+		> make
+
+	or
+
+		> cd Src/Gadget_cuda_gx
+		> make
+
+	but the object files eventually needs to be linked together to produce the
+	GADGET2 binary placed in the Bin/ directory.
+
+FILES:
+
+	Binaries:
+		Are put into the Bin/ directory
+
+	IC files:
+		Found in the Dat/ directory.
+
+		Generation of new IC file requires IC from Sirko, and Gadget Addon utils
+		from C.E. Frigaard. Mail me if you need any big IC files.
+
+	Output data:
+		Are placed in the Out/ directory (when running using the
+		Makefile)
+
+	Source files:
+		Are placed into the Src/ directory.
+
+		The Src/Gadget-2.0.3/ directory contains a 'vanilla' GADGET2 distribution
+		modified with hook into the G2X code. It also contains a number of G2X
+		source files, look for '*_gx.[c|h]'.
+
+		Src/Gadget_cuda_gx is the CUDA backend for GADGET2/G2X and contains the
+		framework needed for launching a GPU kernel.
+
+		Notice that the	directories contains soft links for shared files between
+		GADGET2 and G2X.
+
+	cudakernelsize.txt:
+		The number of blocks and grids to use in a kernel launch, pre-setted to
+		64 and 256, but you could modify this.
+
+RUNTIME TUNING:
+
+	The total number of threads are determinde by the file 'cudakernelsize.txt';
+	you might want to change the blocks and threads here!
+
+	When running on multiple nodes the code assumes, that there is a fixed number
+	of nVidia cards present per node. See the function "AssignDevice_gx" in
+	the file Src/Gadget_cuda_gx/gadget_cuda.gx
+
+	Finally, the code assumes, that particles with id in close vicinity are also
+	physically (in terms of 3D distance) very close. If this is not the case you
+	will get a severe penalty on run-time performance. A later version of G2X
+	might address this problem, by pre-grouping particles.
+
+RUNNING AND TESTING:
+
+	Run under mpi as
+
+		mpirun -hostfile myhosts.txt -n 8 Bin/Gadget2 Dat/ana_b_04.param -cuda 2
+
+	or similar.
+
+	The option "-cuda 2" makes the code use CUDA hardware, "-cuda 1" is an
+	internal testmode only and "-cuda 0" uses the original GADGET2 code.
+
+	You could also use the Makefile's run mode: Modify Makefile, DAT directory
+	to point at the desired test, look at the lines
+
+		DAT=b_04
+		PARAM=Dat/ana_$(DAT).param
+
+	that reefer to IC data 'ic_b_04.g' (GADGET2 IC file) and 'ana_b_04.param'
+	(GADGET2 parameter file) in the Dat/ diretory. The naming scheme 'ic_b_*'
+	 etc. is just an artifact.
+
+	To run with this Makefile setting in the original, GADGET2 mode
+
+		> make run
+
+	or similar but more verbose
+
+		> make run cuda=0
+
+	Output will be placed in Out/Out_b_xx directory.
+
+	To run with the Makefile setting in cudamode, you do
+
+		> make cuda=2 run
+
+	Finally, you could run in CUDA emulation mode
+
+		> make clean
+		> make cuda=2 emu=1 run
+
+TESTING AND DEBUGGING:
+
+	The G2X source includes a large number of internal testing points. These
+	somehow resembles the asserts found in C, but the G2X 'asserts' are
+	independent of a particular debug or release configuration.
+
+	You can enabling this internal debugging or testing mode by editing
+	NVIDIA_CUDA_SDK/projetcs/Gadget_cuda_gx/cudautils.h,
+
+	Change line,
+
+		#define CUDA_DEBUG_GX 0
+
+	to
+
+		#define CUDA_DEBUG_GX 1
+
+	or
+
+		#define CUDA_DEBUG_GX 2
+
+	or above...
+
+	then rebuild and run by
+
+		> make clean
+		> make cuda=2 run
+
+	When facing a problem, or when you want to verify your system you should
+	begin by setting CUDA_DEBUG_GX to one. This turn on the first level of tests.
+
+	Setting CUDA_DEBUG_GX to anything above one, increase the test or debugging
+	output level, at level three an internal printf() mechanism kicks in,
+	printing verbose output from the CUDA/GPU kernel (yes,	I've implemented
+	printf() functionality into the kernels running on the GPU!).
+
+	To enable really verbose debug output if CUDA_DEBUG_GX is setted to 2 or
+	above and then do
+
+		> make clean
+		> make cuda=2 cudadebug=4 run
+
+	Running in a C-like debug mode, instead of relase mode, is done by setting
+	the dbg flag
+
+		> make clean
+		> make dbg=1
+
+	and this produces '*.d.o' object files and a 'Bin/Gadget2.d' debug binary.
+
+KNOWN DEFECTS:
+
+	Defect 1 (open): nVidia card running hot:
+		When running large simulations on a nVidia 260 on a personal PC	the
+		kernel sometimes stalls. This is due to a temperature of above some 80
+		to 100 degree Celsius. There is currently no known method of detecting
+		such a erroneous state, but	putting a long sleep into the main loop can
+		eliminate the problem.
+
+	Defect 2 (fixed in 0.382): strange i value at main loop:
+		When running on multiple nodes, I expect the i variable to be equal 0 at
+		the main loop in gravtree.c around line 158,
+
+			while(ntotleft > 0) {
+				...
+				for(nexport = 0, ndone = 0; i< NumPart &&
+					nexport < All.BunchSizeForce - NTask; i++)
+          			...
+				[here I hope for i==0 always, but it is not
+				 the case in some large sims scenarios]
+				...
+			}
+
+		Sometimes this is not the case, so I revert from the GPU mode to the old
+		CPU mode, loosing some performance.
+
+		The compiled while-for is quite perplex anyway!
+
+	Defect 3 (open): particles are not pre-sorted:
+		If particles with id's in close vicinity, are not also in close physical
+		vicinity (in terms of 3D distance), the search of the tree structure will
+		pay a very large performance penalty.
+
+	Defect 4: Bitwise exportflags may be buggy.
+		Sim may be defect when setting the BITWISE exportflags. The define it
+		not setted in the release, so a larger memory footprint will be expected.
+
+	Defect 5 (fixed in 0.382): Gravtree main loop still buggy.
+		Running on large data sets, say "make cuda=2 DAT=b_12 run" with
+		CUDA_DEBUG_GX>=1 still gives an assert:
+
+			gravtree.c:299: ASSERT_GX, expression 'i_last_gx==NumPart &&
+			ndone>=count_exported_gx && ndone>=not_timestepped_gx' failed
+			aborting now...
+
+
+REPORTING DEFECTS:
+
+	When reporting bugs, please include a short description and preferable add
+			* the version of G2X
+			* any output, say "out.txt" or similar
+			* any IC files used for the simulation (if not to large)
+			* GADGET2 IC parameter file ("icfile".param)
+			* GADGET2 configuration file (gadget.options)
+
+	Please email defects to: carsten.frigaard@gmail.com
+
+LICENSE:
+
+	G2X license:
+
+		© 2010 Carsten Eie Frigaard. Permission to use, copy, modify, and distribute
+		this software and its documentation for any purpose and without fee is
+		hereby granted, provided that the above copyright notice appear in all
+		copies and that both that copyright notice and this permission notice appear
+		in supporting documentation.
+
+		License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>.
+		This is free software: you are free to change and redistribute it.
+		There is NO WARRANTY, to the extent permitted by law.
+
+		This software is free software: you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
+		the Free Software Foundation, either version 3 of the License, or
+		any later version.
+
+		This software is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+		GNU General Public License for more details.
+
+		You should have received a copy of the GNU General Public License
+		along with this software.  If not, see <http://www.gnu.org/licenses/>.
+
+
+	Except the original GADGET2 code, with the license:
+
+		Copyright (c) 2005  Volker Springel
+		                    Max-Plank-Institute for Astrophysics
+
+		This program is free software; you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
+		the Free Software Foundation; either version 2 of the License, or
+		(at your option) any later version.
+
+		This program is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+		GNU General Public License for more details.
+
+		You should have received a copy of the GNU General Public License
+		along with this program; if not, write to the Free Software
+		Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+Enjoy
+.carsten
+
+[carsten.frigaard@gmail.com]

@@ -1,0 +1,32 @@
+
+[Flags]
+
+#overflow protection
+ASSUME_NO_OVFLO = off
+
+#incremental SMT checking
+USE_INCRSMT = off
+
+#automatic loop refinement
+USE_LOOP_REFINEMENT = on
+
+#slicing away array updates
+SLICE_ARRAYS = on
+
+#the assume derivative
+USE_ASSUMES = on
+
+
+[Options]
+
+#check bank conflict rates (on same variables) rather than races
+CHK_BANK_CONFLICTS = off
+
+
+[Values]
+
+#verbosity, 0 means the least information will be printed out
+VERBOSE = 1
+
+#number of bits of a bitvector
+NBITS = 16
