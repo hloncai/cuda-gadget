@@ -1,3 +1,20 @@
+CUDA-GADGET, based on G2X, based on Gadget-2.
+Benjamin Wibking, Vanderbilt University
+
+Last update: 0.1, Sept 2013
+
+CAUTION: Multi-GPU/MPI mode does not give correct results.  Do not attempt multiple-GPU runs, unless you want to try to debug it.  However, single-GPU results have been verified running in double-precision CUDA-GADGET on Fermi-class GPUs with CUDA 4/5 and double-precision mode of Gadget2.
+
+Expected speedup: ~10x with GPU compared to CPU-only for galaxy-scale problems (~10-50 million particles).
+
+Future work: Further speedup will require re-architecting tree construction and tree walk specifically for the CUDA threading model and using structure-of-arrays data layout.
+
+Send comments or questions to: ben.wibking@gmail.com.
+
+#################################
+Original README
+#################################
+
 NAME:
 
 	G2X: GADGET2 optimization using the CUDA architecture
