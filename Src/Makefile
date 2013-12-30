@@ -20,7 +20,7 @@
 #CUDACC=nvcc -ccbin /usr/local/intel12/bin/icc
 #CUDACC=nvcc -ccbin tau_cxx.sh
 CUDACC=nvcc
-CFLAGS=-m64 -arch sm_20 --ptxas-options=-v -ftz=false -prec-div=true -prec-sqrt=true -fmad=false -Xptxas -dlcm=ca
+CFLAGS=-m64 -arch sm_35 --ptxas-options=-v -ftz=false -prec-div=true -prec-sqrt=true -fmad=false -Xptxas -dlcm=ca
 # change above to -arch sm_13
 
 CUFILES =$(shell ls *.cu)

@@ -489,10 +489,10 @@ void gravity_tree(void)
 						for(j = 0; j < nsend_local[recvTask]; j++)
 						{
 							place = GravDataIndexTable[noffset[recvTask] + j].Index;
-/* // disable export forces for debugging
+// comment out in order to disable export forces for debugging
 							for(k = 0; k < 3; k++)
 								P[place].GravAccel[k] += GravDataOut[j + noffset[recvTask]].u.Acc[k];
-*/
+
 							P[place].GravCost += GravDataOut[j + noffset[recvTask]].w.Ninteractions;
 						}
 					}

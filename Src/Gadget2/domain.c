@@ -307,30 +307,6 @@ void domain_decompose(void)
 	sumtogo += toGo[i];
     }
 
-    /* Print out domain decomposition for this node -- used for debugging */
-  FILE* FdDomainDecomp;
-  int nthis;
-  for(nthis = 0; nthis < NTask; nthis++)
-  {
-      if(nthis == ThisTask)
-        {
-	  if(!(FdDomainDecomp = fopen("domain.txt", "a")))
-	  {
-	              printf("error in opening file '%s'\n", "domain.txt");
-	              endrun(17);
-	  }
-	
-	  for(i = 0; i < NumPart; i++)
-	  {
-	      fprintf(FdDomainDecomp, "%d %d %d %g %g %g %g\n", P[i].ID, ThisTask, num_domain_decompositions, P[i].Pos[0], P[i].Pos[1], P[i].Pos[2], P[i].GravCost);
-	  }
-	  fclose(FdDomainDecomp);
-	}
-
-      MPI_Barrier(MPI_COMM_WORLD);
-  }
-  num_domain_decompositions++;
-	/* End print out domain decomposition */
     
 }
 
