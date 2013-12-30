@@ -18,7 +18,8 @@
 # along with this software.  If not, see <http:#www.gnu.org/licenses/>.
 
 #CUDACC=nvcc -ccbin /usr/local/intel12/bin/icc
-CUDACC=nvcc -ccbin tau_cxx.sh
+#CUDACC=nvcc -ccbin tau_cxx.sh
+CUDACC=nvcc
 CFLAGS=-m64 -arch sm_20 --ptxas-options=-v -ftz=false -prec-div=true -prec-sqrt=true -fmad=false -Xptxas -dlcm=ca
 # change above to -arch sm_13
 

@@ -78,14 +78,14 @@ DIR=$(shell pwd)
 DATBASE=$(firstword $(subst ., ,$(subst _, ,$(DAT))))
 
 # Directory and file dependency setup
-CUDADIR     = Src/Gadget_cuda_gx
-GADGETDIR   = Src/Gadget-2.0.5/Gadget2
+CUDADIR     = Src
+GADGETDIR   = Src/Gadget2
 OUTDIR      = Out/Out_$(DAT)
 
 CUDAFILES   = $(shell ls $(CUDADIR)/*.cu $(CUDADIR)/*.cpp $(CUDADIR)/*.h $(CUDADIR)/Makefile 2>/dev/null)
 GADGETFILES = $(shell ls $(GADGETDIR)/*.c $(GADGETDIR)/*.cpp $(GADGETDIR)/*.h 2>/dev/null)
 XDEPEND     = $(CUDADIR)/Makefile $(GADGETDIR)/Makefile $(GADGETDIR)/gadget.options Makefile
-BIN         = $(EMUSUFFIX)Gadget2_plummer$(OCELOTSUFFIX)$(BINSUFFIX)
+BIN         = $(EMUSUFFIX)Gadget2$(OCELOTSUFFIX)$(BINSUFFIX)
 MPIRUN_BASE = mpiexec -machinefile $(HOSTFILE) -n $(NCPUS)
 MPIRUN_BIN  = $(DIR)/Bin/$(BIN) $(PARAM) $(CUDA)
 MPIRUN      = $(MPIRUN_BASE) $(MPIRUN_BIN)

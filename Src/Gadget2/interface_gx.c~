@@ -31,7 +31,7 @@
 #include "tools_gx.h"
 #include "timer_gx.h"
 #include "debug_gx.h"
-#include "../../Gadget_cuda_gx/gadget_cuda_gx.h"
+#include "../../gadget_cuda_gx.h"
 
 struct parameters_gx       p_gx;
 #ifdef SPH

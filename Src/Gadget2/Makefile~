@@ -17,38 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this software.  If not, see <http:#www.gnu.org/licenses/>.
 
-#CC  = mpicc
-#CPP = mpicxx
+CC  = mpicc
+CPP = mpicxx
 
-CC  = tau_cc.sh
-CPP = tau_cxx.sh
-LD  = tau_cxx.sh
+#CC  = tau_cc.sh
+#CPP = tau_cxx.sh
+#LD  = tau_cxx.sh
 
-CUDASRC = ../../Gadget_cuda_gx
+CUDASRC = ../
 ifeq (x86_64,$(shell uname -m))
 	SYSTEMARCHITECTURE=64
 endif
 
 GCC_CWARN_FLAGS = 
-
-OLD_GCC_CWARN_FLAGS = \
-	-Wall \
-	-Wextra \
-	-Wimplicit \
-	-Wchar-subscripts \
-	-Wmultichar \
-	-Wpointer-arith \
-	-Wcast-align \
-	-Wpointer-arith \
-	-Wcast-align \
-	-Wpacked \
-	-Wstack-protector \
-	-Wno-strict-aliasing\
-	-Wno-unused-function\
-	-Wno-unused-variable\
-	-Wno-unused-parameter\
-	-Wno-sign-compare
-	# -Wshadow
 
 GCC_CPPWARN_FLAGS = $(GCC_CWARN_FLAGS)
 
@@ -73,18 +54,15 @@ FLAGSICC=-fast -ipo -xSSE4.2 -fp-model precise -fp-model source -unroll-aggressi
 MPICCVENDOR=$(shell $(CC) --version | head -c 3)
 
 ifeq (gcc,$(MPICCVENDOR))
-	# Linux/GCC/i686 like config:
 	OPTIONS += $(FLAGSGCC)
 	CWARN_FLAGS  =$(GCC_CWARN_FLAGS)
 	CPPWARN_FLAGS=$(GCC_CPPWARN_FLAGS)
 else
 ifeq (icc,$(MPICCVENDOR))
- 	# Linux/ICC/i685 like config
- 	OPTIONS += $(FLAGSICC)
+	OPTIONS += $(FLAGSICC)
 	CWARN_FLAGS  =$(ICC_CWARN_FLAGS)
 	CPPWARN_FLAGS=$(ICC_CPPWARN_FLAGS)
 else
-	# assume Linux/GCC
 	OPTIONS += $(FLAGSGCC)
 endif
 endif
@@ -98,17 +76,11 @@ ifeq ($(dbg),1)
 	BINSUFFIX = .d
 	LIBSUFFIX = D
 	TARGET = debug
-	# Generate debug info in objectfiles, for debuggers, callgrind, et. al.
+        # Generate debug info in objectfiles, for debuggers, callgrind, et. al.
 	OPTIONS += -g -O0
 else
 	TARGET = release
 	OPTIONS += -O3
-endif
-
-ifeq ($(emu),1)
-	EMUSFX = _emu
-	EMUSUFFIX = emu
-	TARGET = emu$(TARGET)
 endif
 
 # Include paths, you system might be different,
@@ -121,13 +93,14 @@ ifeq ($(ocelot),1)
 	CUDA_LIB  =-L$(CUDA_INSTALL_PATH)/lib -L/usr/local/cuda5.0/lib64 -L/home/bwibking/opt/ocelot/lib `OcelotConfig -l`
 else
 #	CUDA_LIB  =-L$(CUDA_INSTALL_PATH)/lib -L/sw/keeneland/cuda/4.2/linux_binary/lib64 -lcudart$(EMUSUFFIX)
-	CUDA_LIB  =-L$(CUDA_INSTALL_PATH)/lib -L/usr/local/cuda5.0/lib64 -lcudart$(EMUSUFFIX)
+#	CUDA_LIB  =-L$(CUDA_INSTALL_PATH)/lib -L/usr/local/cuda5.0/lib64 -lcudart
+	CUDA_LIB  =-L$(CUDA_INSTALL_PATH)/lib -L/opt/apps/cuda/5.0/lib64 -lcudart
 endif
 
-GSL_INCL = -I/usr/local/gsl/latest/x86_64/gcc46/nonet/include
-GSL_LIB = -L/usr/local/gsl/latest/x86_64/gcc46/nonet/lib -lgsl -lgslcblas -lm
-FFTW_INCL = -I/usr/local/fftw/latest-2/x86_64/gcc46/ether/include
-FFTW_LIBS = -L/usr/local/fftw/latest-2/x86_64/gcc46/ether/lib
+GSL_INCL = -I/opt/apps/intel13/gsl/1.15/include
+GSL_LIB = -L/opt/apps/intel13/gsl/1.15/lib -lgsl -lgslcblas
+FFTW_INCL = -I/opt/apps/intel13/mvapich2_1_9/fftw2/2.1.5/include
+FFTW_LIBS = -L/opt/apps/intel13/mvapich2_1_9/fftw2/2.1.5/lib
 # GSL_INCL  =
 #GSL_LIB   =-lgsl -lgslcblas -lm
 #FFTW_INCL =-isystem /sw/keeneland/fftw/2.1.5/centos5.5_gnu4.1.2_openmpi1.4.3/include
