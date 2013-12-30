@@ -337,7 +337,7 @@ void force_treeevaluate_shortrange_cuda_gx_kernel()
 						if(target_id == 58896)
 							printf("pseudoparticle: %d %d %d\n",g_const_parameters.Ti_Current,g_const_state.ThisTask,no);
 						//Exportflag[DomainTask[no - (g_const_parameters.MaxPart + g_const_parameters.MaxNodes)]] = 1;
-						SetExportflag_gx(no,target_x
+						SetExportflag_gx(no,target
 						#if CUDA_DEBUG_GX > 1
 							,devmsg
 						#endif
